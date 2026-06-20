@@ -17,7 +17,19 @@ const PORT = process.env.PORT || 5000;
 // Security and utility middlewares
 app.use(helmet());
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // If no ALLOWED_ORIGINS set, allow everything (dev/demo mode)
+    if (!process.env.ALLOWED_ORIGINS) return callback(null, true);
+    // Otherwise check against the allowed list
+    const allowed = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim());
+    if (allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: Origin ${origin} is not allowed`));
+    }
+  },
   credentials: true,
 }));
 app.use(morgan('dev'));
