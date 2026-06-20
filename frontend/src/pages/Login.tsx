@@ -97,10 +97,16 @@ export const Login: React.FC = () => {
         <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[120px]" />
         <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-teal-500/10 blur-[120px]" />
         
-
+        {/* Logo */}
+        <div className="flex items-center gap-3 relative z-10 bg-white px-4 py-2.5 rounded-xl border border-white/10 w-fit shadow-lg shadow-black/10">
+          <img src="/medcare-logo.png" alt="MedCare+" className="h-8 w-auto" />
+        </div>
 
         {/* Messaging */}
         <div className="space-y-6 relative z-10 max-w-md">
+          <Badge variant="accent" className="bg-blue-500/10 text-blue-400 border-blue-400/20 px-3 py-1 font-semibold uppercase text-[10px] tracking-wider">
+            ✦ India's Leading Digital Health Ecosystem
+          </Badge>
           <h2 className="text-4xl font-extrabold leading-tight tracking-tight text-white">
             Unified Healthcare,<br />
             <span className="text-blue-400">Simplified for You.</span>
