@@ -1,0 +1,412 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  LAB_TECH
+  PHARMACIST
+  INSURANCE_AGENT
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum AppointmentType {
+  VIRTUAL
+  PHYSICAL
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         Role          @default(PATIENT)
+  avatarUrl    String?
+  phoneNumber  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  patient      Patient?
+  doctor       Doctor?
+  notifications Notification[]
+  messagesSent Message[]     @relation("SentMessages")
+  auditLogs    AuditLog[]
+}
+
+model Patient {
+  id             String           @id @default(uuid())
+  userId         String           @unique
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dateOfBirth    DateTime?
+  bloodGroup     String?
+  walletBalance  Float            @default(0.0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  appointments   Appointment[]
+  orders         Order[]
+  insurances     Insurance[]
+  labReports     LabReport[]
+  vaccines       VaccinationSchedule[]
+  familyMembers  FamilyMember[]
+  addresses      Address[]
+  wishlist       Wishlist?
+  cart           Cart?
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  label     String   // e.g. "Home", "Office"
+  street    String
+  city      String
+  state     String
+  zipCode   String
+  country   String
+  createdAt DateTime @default(now())
+}
+
+model Doctor {
+  id             String           @id @default(uuid())
+  userId         String           @unique
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization String
+  experienceYrs  Int
+  hospitalName   String
+  licenseNumber  String           @unique
+  consultationFee Float
+  rating         Float            @default(0.0)
+  bio            String?
+  isAvailable    Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  appointments   Appointment[]
+  prescriptions  Prescription[]
+  reviews        Review[]
+}
+
+model Appointment {
+  id             String            @id @default(uuid())
+  patientId      String
+  patient        Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId       String
+  doctor         Doctor            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  dateTime       DateTime
+  type           AppointmentType   @default(VIRTUAL)
+  status         AppointmentStatus @default(PENDING)
+  videoRoomId    String?
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  payment        Payment?
+  prescription   Prescription?
+}
+
+model Prescription {
+  id             String            @id @default(uuid())
+  appointmentId  String            @unique
+  appointment    Appointment       @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  doctorId       String
+  doctor         Doctor            @relation(fields: [doctorId], references: [id])
+  diagnosis      String
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  items          PrescriptionItem[]
+}
+
+model PrescriptionItem {
+  id             String            @id @default(uuid())
+  prescriptionId String
+  prescription   Prescription      @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  medicineId     String
+  medicine       Medicine          @relation(fields: [medicineId], references: [id])
+  dosage         String            // e.g. "1 tablet"
+  frequency      String            // e.g. "Twice daily"
+  duration       String            // e.g. "5 days"
+}
+
+model MedicineCategory {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  medicines   Medicine[]
+}
+
+model Medicine {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String
+  price       Float
+  imageUrl    String?
+  categoryId  String
+  category    MedicineCategory @relation(fields: [categoryId], references: [id])
+  stock       Int              @default(0)
+  prescriptionRequired Boolean @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  orderItems  OrderItem[]
+  prescriptionItems PrescriptionItem[]
+  reviews     Review[]
+  wishlists   Wishlist[]
+  cartItems   CartItem[]
+}
+
+model Order {
+  id             String        @id @default(uuid())
+  patientId      String
+  patient        Patient       @relation(fields: [patientId], references: [id])
+  status         OrderStatus   @default(PENDING)
+  shippingAddress String
+  couponCode     String?
+  discount       Float         @default(0.0)
+  tax            Float
+  shippingFee    Float
+  total          Float
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  items          OrderItem[]
+  payment        Payment?
+}
+
+model OrderItem {
+  id         String   @id @default(uuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  quantity   Int
+  price      Float
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  amount         Float
+  status         PaymentStatus @default(PENDING)
+  method         String        // e.g. "STRIPE", "RAZORPAY", "WALLET"
+  transactionId  String        @unique
+  appointmentId  String?       @unique
+  appointment    Appointment?  @relation(fields: [appointmentId], references: [id])
+  orderId        String?       @unique
+  order          Order?        @relation(fields: [orderId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model InsurancePlan {
+  id             String      @id @default(uuid())
+  name           String      @unique
+  providerName   String
+  description    String
+  premiumMonthly Float
+  coverageLimit  Float
+  coPayPercent   Float
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  insurances     Insurance[]
+}
+
+model Insurance {
+  id             String        @id @default(uuid())
+  patientId      String
+  patient        Patient       @relation(fields: [patientId], references: [id])
+  planId         String
+  plan           InsurancePlan @relation(fields: [planId], references: [id])
+  policyNumber   String        @unique
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  claims         InsuranceClaim[]
+}
+
+model InsuranceClaim {
+  id             String      @id @default(uuid())
+  insuranceId    String
+  insurance      Insurance   @relation(fields: [insuranceId], references: [id])
+  amountClaimed  Float
+  status         ClaimStatus @default(PENDING)
+  description    String
+  documentUrl    String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Vaccination {
+  id             String           @id @default(uuid())
+  name           String           @unique
+  description    String
+  targetAgeMonths Int
+  dosageNumber   Int
+  createdAt      DateTime         @default(now())
+  schedules      VaccinationSchedule[]
+}
+
+model VaccinationSchedule {
+  id             String      @id @default(uuid())
+  patientId      String
+  patient        Patient     @relation(fields: [patientId], references: [id])
+  vaccinationId  String
+  vaccination    Vaccination @relation(fields: [vaccinationId], references: [id])
+  dueDate        DateTime
+  completedDate  DateTime?
+  reminderSent   Boolean     @default(false)
+}
+
+model LabTest {
+  id             String      @id @default(uuid())
+  name           String      @unique
+  description    String
+  price          Float
+  sampleType     String      // e.g. "Blood", "Urine"
+  homeCollection Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  labReports     LabReport[]
+}
+
+model LabReport {
+  id             String      @id @default(uuid())
+  patientId      String
+  patient        Patient     @relation(fields: [patientId], references: [id])
+  labTestId      String
+  labTest        LabTest     @relation(fields: [labTestId], references: [id])
+  technicianName String?
+  resultSummary  String?
+  reportUrl      String?     // PDF download url
+  scheduledDate  DateTime
+  completedDate  DateTime?
+  status         String      @default("PENDING") // e.g. "PENDING", "COMPLETED"
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  patientName String
+  rating      Int
+  comment     String
+  doctorId    String?
+  doctor      Doctor?  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  medicineId  String?
+  medicine    Medicine? @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  senderId  String
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  content   String
+  session   String   // Can represent AI session or Patient-Doctor thread
+  createdAt DateTime @default(now())
+}
+
+model FamilyMember {
+  id           String   @id @default(uuid())
+  patientId    String
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  name         String
+  relationship String   // e.g. "Spouse", "Child", "Parent"
+  age          Int
+  bloodGroup   String?
+  createdAt    DateTime @default(now())
+}
+
+model Wishlist {
+  id        String     @id @default(uuid())
+  patientId String     @unique
+  patient   Patient    @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  medicines Medicine[]
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  patientId String     @unique
+  patient   Patient    @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+}
+
+model CartItem {
+  id         String   @id @default(uuid())
+  cartId     String
+  cart       Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  quantity   Int      @default(1)
+}
+
+model Coupon {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  discountPercent Float
+  expiryDate      DateTime
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
+
+model Blog {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  imageUrl  String?
+  category  String
+  author    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Faq {
+  id        String @id @default(uuid())
+  question  String @unique
+  answer    String
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}
