@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../utils/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { 
   Users, Activity, ShoppingBag, Calendar, 
@@ -118,8 +119,8 @@ export const AdminDashboard: React.FC = () => {
 
       // Fetch all data in parallel
       const [usersRes, ordersRes] = await Promise.allSettled([
-        axios.get('http://localhost:5000/api/v1/catalog/admin/users', { headers }),
-        axios.get('http://localhost:5000/api/v1/catalog/admin/orders', { headers }),
+        axios.get(`${API_BASE}/catalog/admin/users`, { headers }),
+        axios.get(`${API_BASE}/catalog/admin/orders`, { headers }),
       ]);
 
       // Process Users

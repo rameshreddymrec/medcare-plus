@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { API_BASE } from '../utils/api';
 import { useLabTestsStore } from '../store/useLabTestsStore';
 import type { LabTest, LabPackage, LabCartItem } from '../store/useLabTestsStore';
 import { useAppointmentsStore } from '../store/useAppointmentsStore';
@@ -35,7 +36,7 @@ export const LabTests: React.FC = () => {
   useEffect(() => {
     const fetchLabTests = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/catalog/lab-tests');
+        const response = await axios.get(`${API_BASE}/catalog/lab-tests`);
         if (response.data && response.data.success && Array.isArray(response.data.data)) {
           const fetchedTests: LabTest[] = [];
           const fetchedPackages: LabPackage[] = [];

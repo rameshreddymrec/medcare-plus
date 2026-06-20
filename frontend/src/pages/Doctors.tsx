@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE } from '../utils/api';
 import { useAppointmentsStore } from '../store/useAppointmentsStore';
 import type { Doctor } from '../store/useAppointmentsStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -27,7 +28,7 @@ export const Doctors: React.FC = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/catalog/doctors');
+        const response = await axios.get(`${API_BASE}/catalog/doctors`);
         if (response.data && response.data.success && Array.isArray(response.data.data)) {
           const mapped: Doctor[] = response.data.data.map((d: any) => ({
             id: d.id,

@@ -40,7 +40,7 @@ interface AuthState {
   resetPasswordRequest: (email: string, newPassword: string, resetToken: string) => Promise<{ success: boolean; error?: string }>;
 }
 
-const API_BASE = 'http://localhost:5000/api/v1';
+import { API_BASE } from '../utils/api';
 
 export const useAuthStore = create<AuthState>()(
   persist(

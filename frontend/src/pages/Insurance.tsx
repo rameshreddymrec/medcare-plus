@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE } from '../utils/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { 
   ShieldCheck, ArrowRight, Phone, Clock, Users, TrendingUp, 
@@ -143,7 +144,7 @@ export const Insurance: React.FC = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/payment/checkout-insurance', payload, {
+      const response = await axios.post(`${API_BASE}/payment/checkout-insurance`, payload, {
         headers: {
           Authorization: `Bearer ${token}`
         }

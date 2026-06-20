@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../utils/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/common/Card';
 import { Button } from '../components/common/Button';
@@ -53,7 +54,7 @@ export const PatientInsurance: React.FC = () => {
   const fetchPolicy = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:5000/api/v1/payment/active-insurance', {
+      const response = await axios.get(`${API_BASE}/payment/active-insurance`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -147,7 +148,7 @@ export const PatientInsurance: React.FC = () => {
     } else {
       // Online claim submission
       try {
-        const response = await axios.post('http://localhost:5000/api/v1/payment/claim-insurance', {
+        const response = await axios.post(`${API_BASE}/payment/claim-insurance`, {
           amountClaimed: Number(claimAmount),
           description: claimDescription
         }, {

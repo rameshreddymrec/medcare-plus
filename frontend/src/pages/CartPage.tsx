@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { API_BASE } from '../utils/api';
 import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/common/Card';
@@ -154,7 +155,7 @@ export const CartPage: React.FC = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/payment/checkout', payload, {
+      const response = await axios.post(`${API_BASE}/payment/checkout`, payload, {
         headers: {
           Authorization: `Bearer ${token}`
         }

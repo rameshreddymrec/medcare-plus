@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { API_BASE } from '../utils/api';
 import { useCartStore } from '../store/useCartStore';
 import type { CartItem } from '../store/useCartStore';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/common/Card';
@@ -118,7 +119,7 @@ export const Pharmacy: React.FC = () => {
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/catalog/medicines');
+        const response = await axios.get(`${API_BASE}/catalog/medicines`);
         if (response.data && response.data.success && Array.isArray(response.data.data)) {
           const mapped: Medicine[] = response.data.data.map((m: any) => ({
             id: m.id,
