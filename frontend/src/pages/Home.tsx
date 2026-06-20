@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import medicalHeroBanner from '../assets/medical_hero_banner.png';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -212,7 +213,7 @@ export const Home: React.FC = () => {
         {/* ── HERO BANNER IMAGE — full-width below title, like reference ── */}
         <div className="max-w-6xl mx-auto relative rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
           <img
-            src="/src/assets/medical_hero_banner.png"
+            src={medicalHeroBanner}
             alt="Medical Specialists"
             className="w-full object-cover object-[center_30%] h-[240px] sm:h-[320px] md:h-[420px] lg:h-[480px]"
           />
