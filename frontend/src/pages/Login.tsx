@@ -97,16 +97,10 @@ export const Login: React.FC = () => {
         <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[120px]" />
         <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-teal-500/10 blur-[120px]" />
         
-        {/* Logo */}
-        <div className="flex items-center gap-3 relative z-10 bg-white px-4 py-2.5 rounded-xl border border-white/10 w-fit shadow-lg shadow-black/10">
-          <img src="/medcare-logo.png" alt="MedCare+" className="h-8 w-auto" />
-        </div>
+
 
         {/* Messaging */}
         <div className="space-y-6 relative z-10 max-w-md">
-          <Badge variant="accent" className="bg-blue-500/10 text-blue-400 border-blue-400/20 px-3 py-1 font-semibold uppercase text-[10px] tracking-wider">
-            ✦ India's Leading Digital Health Ecosystem
-          </Badge>
           <h2 className="text-4xl font-extrabold leading-tight tracking-tight text-white">
             Unified Healthcare,<br />
             <span className="text-blue-400">Simplified for You.</span>
@@ -114,14 +108,8 @@ export const Login: React.FC = () => {
           <p className="text-sm text-slate-400 leading-relaxed">
             Consolidate your diagnostic screening reports, prescriptions, insurance claims, and consultations in a single secure environment.
           </p>
-          {/* Demo Credentials Box */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2">
-            <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2">🔑 Demo Accounts</p>
-            <p className="text-xs text-slate-300"><span className="text-white font-semibold">Patient:</span> patient@medcareplus.com / patient123</p>
-            <p className="text-xs text-slate-300"><span className="text-white font-semibold">Doctor:</span> dr.kumar@medcareplus.com / doctor123</p>
-            <p className="text-xs text-slate-300 opacity-60">Admin credentials are private — contact support.</p>
-          </div>
         </div>
+
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 gap-6 pt-10 border-t border-slate-800 relative z-10">
